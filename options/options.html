@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Converter Settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Local image conversion</p>
+          <h1 id="page-title">Image Converter and Downloader</h1>
+          <p class="lede">
+            Choose how right-click image conversions should be encoded and downloaded.
+            All processing stays inside your browser.
+          </p>
+        </div>
+      </section>
+
+      <form id="settings-form" class="panel">
+        <fieldset>
+          <legend>Output</legend>
+
+          <label class="field" for="default-format">
+            <span>Default quick-convert format</span>
+            <select id="default-format" name="defaultFormat">
+              <option value="png">PNG</option>
+              <option value="jpg">JPG</option>
+              <option value="webp">WEBP</option>
+            </select>
+          </label>
+
+          <label class="field range-field" for="jpg-quality">
+            <span>JPG quality <output id="jpg-quality-value" for="jpg-quality"></output></span>
+            <input id="jpg-quality" name="jpgQuality" type="range" min="0.1" max="1" step="0.01">
+          </label>
+
+          <label class="field range-field" for="webp-quality">
+            <span>WEBP quality <output id="webp-quality-value" for="webp-quality"></output></span>
+            <input id="webp-quality" name="webpQuality" type="range" min="0.1" max="1" step="0.01">
+          </label>
+
+          <div class="field color-row">
+            <label for="jpg-background-color">JPG background for transparent images</label>
+            <div class="color-controls">
+              <input id="jpg-background-color" name="jpgBackgroundColor" type="color" aria-label="JPG background color picker">
+              <input id="jpg-background-text" type="text" inputmode="text" pattern="^#?[0-9a-fA-F]{6}$" aria-label="JPG background hex color">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Download behavior</legend>
+
+          <p class="inline-note">
+            The browser save dialog is always shown, matching Chrome's built-in Save image as flow.
+          </p>
+
+          <label class="check">
+            <input id="skip-redundant-conversion" name="skipRedundantConversion" type="checkbox">
+            <span>Skip re-encoding when the source already matches the target format</span>
+          </label>
+
+          <label class="check">
+            <input id="preserve-dimensions" name="preserveDimensions" type="checkbox">
+            <span>Preserve original dimensions</span>
+          </label>
+        </fieldset>
+
+        <aside class="note" aria-label="Version one animation behavior">
+          Animated GIF, animated WEBP, and APNG images are converted from the first frame only in this version.
+          Dimensions are preserved by default; resize controls are planned as a future setting.
+        </aside>
+
+        <div class="actions">
+          <button class="primary" type="submit">Save settings</button>
+          <button id="reset-button" type="button">Reset to defaults</button>
+          <p id="status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </main>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

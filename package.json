@@ -1,0 +1,15 @@
+{
+  "name": "image-converter-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Manifest V3 browser extension for local image conversion and downloads.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "generate:icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-icons.ps1",
+    "package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-extension.ps1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
