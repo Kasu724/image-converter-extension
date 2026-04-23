@@ -1,13 +1,16 @@
 :root {
   color-scheme: light;
-  --bg: #f8f0df;
-  --card: #fffaf1;
-  --ink: #1f211d;
-  --muted: #687067;
-  --line: #ded2c2;
-  --accent: #a13d2d;
-  --accent-dark: #6e291f;
-  font-family: "Aptos", "Segoe UI", sans-serif;
+  --page: #f6f7f8;
+  --surface: #ffffff;
+  --surface-subtle: #fafafa;
+  --text: #1f2933;
+  --muted: #667085;
+  --border: #d9dee5;
+  --accent: #b42318;
+  --accent-hover: #912018;
+  --focus: rgb(180 35 24 / 18%);
+  --shadow: 0 16px 40px rgb(15 23 42 / 8%);
+  font-family: "Aptos", "Segoe UI Variable", "Segoe UI", sans-serif;
 }
 
 * {
@@ -20,85 +23,100 @@ body {
   place-items: center;
   margin: 0;
   padding: 24px;
-  color: var(--ink);
-  background:
-    radial-gradient(circle at top right, rgb(161 61 45 / 20%), transparent 28rem),
-    linear-gradient(135deg, #f8f0df, #edf2ec);
+  color: var(--text);
+  background: var(--page);
 }
 
 .card {
-  width: min(720px, 100%);
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: 32px;
-  background: rgb(255 250 241 / 92%);
-  box-shadow: 0 24px 70px rgb(55 39 18 / 16%);
+  width: min(680px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: var(--accent);
+  color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
+  font-size: clamp(1.8rem, 4vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
 }
 
 .message,
 .hint {
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.55;
+}
+
+.message {
+  margin: 12px 0 0;
 }
 
 dl {
   display: grid;
-  gap: 10px;
+  gap: 1px;
+  overflow: hidden;
   margin: 24px 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--border);
 }
 
 dl > div {
   display: grid;
-  gap: 4px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 12px;
-  background: #fffdf8;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  padding: 13px 14px;
+  background: var(--surface);
 }
 
 dt {
   color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 750;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 dd {
+  min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+.hint {
+  margin: 0 0 22px;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 button {
-  min-height: 44px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0 18px;
-  color: var(--ink);
-  background: #fffdf8;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  color: var(--text);
+  background: var(--surface);
   cursor: pointer;
+  font: inherit;
+}
+
+button:hover {
+  background: var(--surface-subtle);
 }
 
 button:first-child {
@@ -108,10 +126,34 @@ button:first-child {
 }
 
 button:first-child:hover {
-  background: var(--accent-dark);
+  background: var(--accent-hover);
 }
 
 button:focus-visible {
-  outline: 3px solid rgb(161 61 45 / 28%);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  body {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 22px;
+  }
+
+  dl > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
 }

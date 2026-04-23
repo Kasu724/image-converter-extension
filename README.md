@@ -10,7 +10,7 @@ A Manifest V3 browser extension for Chromium-based browsers. Right-click an imag
 - Client-side conversion through an MV3 offscreen document and canvas.
 - Supports common web inputs: PNG, JPG/JPEG, WEBP, GIF, SVG, AVIF when the browser can decode it, and many browser-decodable image responses.
 - Outputs PNG, JPG, and WEBP.
-- Converts animated GIF, animated WEBP, and APNG from the first frame only in v1.
+- Converts animated GIF, animated WEBP, and APNG from the first frame
 - Flattens transparent images onto a configurable JPG background color.
 - Preserves source dimensions by default.
 - Preserves the original filename stem where possible, strips query strings/fragments, sanitizes filesystem-unsafe names, and falls back to hostname plus timestamp.
@@ -59,7 +59,7 @@ Open the extension options page from the toolbar icon or the browser extensions 
 - JPG quality from `0.1` to `1.0`.
 - WEBP quality from `0.1` to `1.0`.
 - JPG background color for transparent images.
-- The browser save dialog is always shown, matching Chrome's built-in **Save image as** behavior.
+- The browser save dialog is always shown, matching built-in **Save image as** behavior.
 - Whether to skip re-encoding when the source already matches the target format.
 - Whether to preserve original dimensions. v1 preserves dimensions; this setting is stored for future resize controls.
 - Reset to defaults.
