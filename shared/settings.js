@@ -1,13 +1,18 @@
 import { FORMATS, isOutputFormat, normalizeFormat } from "./constants.js";
 
 export const SETTINGS_STORAGE_KEY = "imageConverterSettings";
+export const DOWNLOAD_MODES = Object.freeze({
+  PROMPT: "prompt",
+  AUTO: "auto"
+});
 
 export const DEFAULT_SETTINGS = Object.freeze({
   defaultFormat: FORMATS.PNG,
-  jpgQuality: 0.92,
+  jpgQuality: 0.9,
   webpQuality: 0.9,
   jpgBackgroundColor: "#FFFFFF",
   askWhereToSave: true,
+  downloadMode: DOWNLOAD_MODES.PROMPT,
   skipRedundantConversion: false,
   preserveDimensions: true
 });
@@ -50,13 +55,20 @@ export function normalizeHexColor(value, fallback = DEFAULT_SETTINGS.jpgBackgrou
 export function normalizeSettings(input = {}) {
   const source = input && typeof input === "object" ? input : {};
   const defaultFormat = normalizeFormat(source.defaultFormat);
+  const downloadMode =
+    source.downloadMode === DOWNLOAD_MODES.AUTO || source.downloadMode === DOWNLOAD_MODES.PROMPT
+      ? source.downloadMode
+      : source.askWhereToSave === false
+        ? DOWNLOAD_MODES.AUTO
+        : DOWNLOAD_MODES.PROMPT;
 
   return {
     defaultFormat: isOutputFormat(defaultFormat) ? defaultFormat : DEFAULT_SETTINGS.defaultFormat,
     jpgQuality: clampQuality(source.jpgQuality, DEFAULT_SETTINGS.jpgQuality),
     webpQuality: clampQuality(source.webpQuality, DEFAULT_SETTINGS.webpQuality),
     jpgBackgroundColor: normalizeHexColor(source.jpgBackgroundColor),
-    askWhereToSave: true,
+    askWhereToSave: downloadMode === DOWNLOAD_MODES.PROMPT,
+    downloadMode,
     skipRedundantConversion: Boolean(source.skipRedundantConversion),
     preserveDimensions:
       typeof source.preserveDimensions === "boolean"

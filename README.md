@@ -21,7 +21,7 @@ A Manifest V3 browser extension for Chromium-based browsers. Right-click an imag
 ## Architecture
 
 - `manifest.json`: MV3 extension declaration with extension API permissions and HTTP/HTTPS host access for local image fetching.
-- `background/service-worker.js`: Creates context menus, handles `blob:` fallback via a one-shot active-tab script, creates the offscreen document, and opens the browser save dialog with `chrome.downloads`.
+- `background/service-worker.js`: Creates context menus, handles `blob:` fallback via a one-shot active-tab script, creates the offscreen document, and downloads either through the browser save dialog or directly into the browser's Downloads folder.
 - `offscreen/offscreen.html` and `offscreen/offscreen.js`: Hidden extension document used only for DOM/canvas-capable image conversion.
 - `offscreen/image-converter.js`: Fetches image bytes, detects source format, decodes raster/SVG sources, draws the first frame to canvas, flattens transparency for JPG, encodes output, and returns a data URL to the service worker.
 - `shared/*.js`: Pure utilities for MIME/extension mappings, filename parsing/sanitization, settings validation, URL helpers, message constants, and error serialization.
@@ -59,7 +59,7 @@ Open the extension options page from the toolbar icon or the browser extensions 
 - JPG quality from `0.1` to `1.0`.
 - WEBP quality from `0.1` to `1.0`.
 - JPG background color for transparent images.
-- The browser save dialog is always shown, matching built-in **Save image as** behavior.
+- Whether to show the browser save dialog or download automatically.
 - Whether to skip re-encoding when the source already matches the target format.
 - Whether to preserve original dimensions. v1 preserves dimensions; this setting is stored for future resize controls.
 - Reset to defaults.
@@ -117,7 +117,8 @@ The extension uses Chromium extension APIs, so behavior should match Chrome clos
 - Convert a GIF and verify only the first frame is saved.
 - Convert an SVG with explicit dimensions and an SVG with only a `viewBox`.
 - Convert an image URL with query strings and fragments and verify the saved filename is clean.
-- Verify every conversion opens the browser save dialog before downloading.
+- Verify prompt mode opens the browser save dialog before downloading.
+- Verify automatic mode saves directly into the browser's Downloads folder.
 - Enable **Skip re-encoding when the source already matches the target format** and verify same-format downloads still save.
 - Try a `data:` image and a `blob:` image.
 - Verify WEBP or AVIF images served from `.jpg` CDN URLs still convert correctly instead of being treated as JPG.

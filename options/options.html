@@ -9,18 +9,20 @@
   <body>
     <main class="shell">
       <section class="hero" aria-labelledby="page-title">
-        <div>
+        <div class="hero-copy">
           <p class="eyebrow">Extension settings</p>
           <h1 id="page-title">Image Converter</h1>
           <p class="lede">
-            Configure right-click image conversion. Processing stays local in your browser.
+            Configure right-click image conversion and download behavior. Processing stays local in your browser.
           </p>
         </div>
       </section>
 
       <form id="settings-form" class="panel">
-        <fieldset>
-          <legend>Output</legend>
+        <section class="settings-section" aria-labelledby="output-title">
+          <div class="section-head">
+            <h2 id="output-title" class="section-title">Output</h2>
+          </div>
 
           <label class="field" for="default-format">
             <span>Default quick-convert format</span>
@@ -31,31 +33,77 @@
             </select>
           </label>
 
-          <label class="field range-field" for="jpg-quality">
-            <span>JPG quality <output id="jpg-quality-value" for="jpg-quality"></output></span>
-            <input id="jpg-quality" name="jpgQuality" type="range" min="0.1" max="1" step="0.01">
+          <label class="field quality-field" for="jpg-quality">
+            <span>JPG quality</span>
+            <div class="quality-control">
+              <div class="slider-shell">
+                <div class="slider-track" aria-hidden="true">
+                  <div class="slider-fill"></div>
+                </div>
+                <input class="slider" id="jpg-quality" name="jpgQuality" type="range" min="0.1" max="1" step="0.01">
+              </div>
+              <input
+                class="quality-number"
+                id="jpg-quality-input"
+                type="number"
+                min="0.1"
+                max="1"
+                step="0.01"
+                inputmode="decimal"
+                aria-label="JPG quality value"
+              >
+            </div>
           </label>
 
-          <label class="field range-field" for="webp-quality">
-            <span>WEBP quality <output id="webp-quality-value" for="webp-quality"></output></span>
-            <input id="webp-quality" name="webpQuality" type="range" min="0.1" max="1" step="0.01">
+          <label class="field quality-field" for="webp-quality">
+            <span>WEBP quality</span>
+            <div class="quality-control">
+              <div class="slider-shell">
+                <div class="slider-track" aria-hidden="true">
+                  <div class="slider-fill"></div>
+                </div>
+                <input class="slider" id="webp-quality" name="webpQuality" type="range" min="0.1" max="1" step="0.01">
+              </div>
+              <input
+                class="quality-number"
+                id="webp-quality-input"
+                type="number"
+                min="0.1"
+                max="1"
+                step="0.01"
+                inputmode="decimal"
+                aria-label="WEBP quality value"
+              >
+            </div>
           </label>
 
-          <div class="field color-row">
-            <label for="jpg-background-color">JPG background for transparent images</label>
+          <div class="field" role="group" aria-labelledby="jpg-background-label">
+            <span id="jpg-background-label">JPG background for transparent images</span>
             <div class="color-controls">
               <input id="jpg-background-color" name="jpgBackgroundColor" type="color" aria-label="JPG background color picker">
               <input id="jpg-background-text" type="text" inputmode="text" pattern="^#?[0-9a-fA-F]{6}$" aria-label="JPG background hex color">
             </div>
           </div>
-        </fieldset>
+        </section>
 
-        <fieldset>
-          <legend>Download behavior</legend>
+        <section class="settings-section" aria-labelledby="download-title">
+          <div class="section-head">
+            <h2 id="download-title" class="section-title">Download behavior</h2>
+          </div>
 
-          <p class="inline-note">
-            The browser save dialog is always shown, matching Chrome's built-in Save image as flow.
-          </p>
+          <div class="mode-grid" role="radiogroup" aria-label="Download mode">
+            <label class="mode-card" for="download-mode-prompt">
+              <input id="download-mode-prompt" name="downloadMode" type="radio" value="prompt">
+              <span class="mode-title">Show save dialog</span>
+              <span class="mode-copy">Choose the final file name and location each time.</span>
+            </label>
+
+            <label class="mode-card" for="download-mode-auto">
+              <input id="download-mode-auto" name="downloadMode" type="radio" value="auto">
+              <span class="mode-title">Download automatically</span>
+              <span class="mode-copy">Save straight into the browser's Downloads folder.</span>
+            </label>
+          </div>
 
           <label class="check">
             <input id="skip-redundant-conversion" name="skipRedundantConversion" type="checkbox">
@@ -66,11 +114,11 @@
             <input id="preserve-dimensions" name="preserveDimensions" type="checkbox">
             <span>Preserve original dimensions</span>
           </label>
-        </fieldset>
+        </section>
 
         <aside class="note" aria-label="Version one animation behavior">
           Animated GIF, animated WEBP, and APNG images are converted from the first frame only in this version.
-          Dimensions are preserved by default; resize controls are planned as a future setting.
+          Resize controls are not exposed yet, so preserving dimensions remains the safest default.
         </aside>
 
         <div class="actions">

@@ -123,7 +123,7 @@ async function handleContextMenuClick(info, tab) {
   const downloadId = await chrome.downloads.download({
     url: response.dataUrl,
     filename: response.filename,
-    saveAs: true,
+    saveAs: settings.downloadMode !== "auto",
     conflictAction: "uniquify"
   });
 

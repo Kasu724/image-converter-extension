@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   DEFAULT_SETTINGS,
+  DOWNLOAD_MODES,
   clampQuality,
   normalizeHexColor,
   normalizeSettings
@@ -34,7 +35,8 @@ test("drops invalid formats while preserving booleans", () => {
   });
 
   assert.equal(normalized.defaultFormat, DEFAULT_SETTINGS.defaultFormat);
-  assert.equal(normalized.askWhereToSave, true);
+  assert.equal(normalized.askWhereToSave, false);
+  assert.equal(normalized.downloadMode, DOWNLOAD_MODES.AUTO);
   assert.equal(normalized.skipRedundantConversion, true);
   assert.equal(normalized.preserveDimensions, false);
 });

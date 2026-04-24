@@ -1,13 +1,23 @@
-import { DEFAULT_SETTINGS, normalizeHexColor, normalizeSettings, readSettings, resetSettings, writeSettings } from "../shared/settings.js";
+import {
+  DEFAULT_SETTINGS,
+  DOWNLOAD_MODES,
+  normalizeHexColor,
+  normalizeSettings,
+  readSettings,
+  resetSettings,
+  writeSettings
+} from "../shared/settings.js";
 
 const form = document.querySelector("#settings-form");
 const defaultFormat = document.querySelector("#default-format");
 const jpgQuality = document.querySelector("#jpg-quality");
-const jpgQualityValue = document.querySelector("#jpg-quality-value");
+const jpgQualityInput = document.querySelector("#jpg-quality-input");
 const webpQuality = document.querySelector("#webp-quality");
-const webpQualityValue = document.querySelector("#webp-quality-value");
+const webpQualityInput = document.querySelector("#webp-quality-input");
 const jpgBackgroundColor = document.querySelector("#jpg-background-color");
 const jpgBackgroundText = document.querySelector("#jpg-background-text");
+const downloadModePrompt = document.querySelector("#download-mode-prompt");
+const downloadModeAuto = document.querySelector("#download-mode-auto");
 const skipRedundantConversion = document.querySelector("#skip-redundant-conversion");
 const preserveDimensions = document.querySelector("#preserve-dimensions");
 const resetButton = document.querySelector("#reset-button");
@@ -25,8 +35,8 @@ async function initialize() {
 }
 
 function bindEvents() {
-  jpgQuality.addEventListener("input", updateQualityOutputs);
-  webpQuality.addEventListener("input", updateQualityOutputs);
+  bindQualityControl(jpgQuality, jpgQualityInput);
+  bindQualityControl(webpQuality, webpQualityInput);
 
   jpgBackgroundColor.addEventListener("input", () => {
     jpgBackgroundText.value = jpgBackgroundColor.value.toUpperCase();
@@ -38,6 +48,9 @@ function bindEvents() {
       jpgBackgroundColor.value = normalized;
     }
   });
+
+  downloadModePrompt.addEventListener("change", updateDownloadModeState);
+  downloadModeAuto.addEventListener("change", updateDownloadModeState);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -68,7 +81,7 @@ function collectSettings() {
     jpgQuality: jpgQuality.value,
     webpQuality: webpQuality.value,
     jpgBackgroundColor: jpgBackgroundText.value || jpgBackgroundColor.value,
-    askWhereToSave: true,
+    downloadMode: downloadModeAuto.checked ? DOWNLOAD_MODES.AUTO : DOWNLOAD_MODES.PROMPT,
     skipRedundantConversion: skipRedundantConversion.checked,
     preserveDimensions: preserveDimensions.checked
   });
@@ -77,18 +90,57 @@ function collectSettings() {
 function renderSettings(settings = DEFAULT_SETTINGS) {
   const normalized = normalizeSettings(settings);
   defaultFormat.value = normalized.defaultFormat;
-  jpgQuality.value = String(normalized.jpgQuality);
-  webpQuality.value = String(normalized.webpQuality);
+  setQualityValue(jpgQuality, jpgQualityInput, normalized.jpgQuality);
+  setQualityValue(webpQuality, webpQualityInput, normalized.webpQuality);
   jpgBackgroundColor.value = normalized.jpgBackgroundColor;
   jpgBackgroundText.value = normalized.jpgBackgroundColor;
+  downloadModePrompt.checked = normalized.downloadMode === DOWNLOAD_MODES.PROMPT;
+  downloadModeAuto.checked = normalized.downloadMode === DOWNLOAD_MODES.AUTO;
   skipRedundantConversion.checked = normalized.skipRedundantConversion;
   preserveDimensions.checked = normalized.preserveDimensions;
-  updateQualityOutputs();
+  updateDownloadModeState();
 }
 
-function updateQualityOutputs() {
-  jpgQualityValue.value = Number(jpgQuality.value).toFixed(2);
-  webpQualityValue.value = Number(webpQuality.value).toFixed(2);
+function bindQualityControl(rangeInput, numberInput) {
+  rangeInput.addEventListener("input", () => {
+    setQualityValue(rangeInput, numberInput, rangeInput.value);
+  });
+
+  numberInput.addEventListener("input", () => {
+    if (numberInput.value === "") {
+      return;
+    }
+
+    setQualityValue(rangeInput, numberInput, numberInput.value);
+  });
+
+  numberInput.addEventListener("blur", () => {
+    setQualityValue(rangeInput, numberInput, numberInput.value || rangeInput.value);
+  });
+}
+
+function setQualityValue(rangeInput, numberInput, value) {
+  const normalized = Math.min(1, Math.max(0.1, Number(Number(value).toFixed(2))));
+  if (!Number.isFinite(normalized)) {
+    return;
+  }
+
+  rangeInput.value = String(normalized);
+  numberInput.value = normalized.toFixed(2);
+  updateSliderFill(rangeInput);
+}
+
+function updateSliderFill(rangeInput) {
+  const min = Number(rangeInput.min || 0);
+  const max = Number(rangeInput.max || 1);
+  const value = Number(rangeInput.value);
+  const percent = ((value - min) / (max - min)) * 100;
+  rangeInput.closest(".slider-shell")?.style.setProperty("--fill", `${percent}%`);
+}
+
+function updateDownloadModeState() {
+  downloadModePrompt.closest(".mode-card")?.classList.toggle("is-selected", downloadModePrompt.checked);
+  downloadModeAuto.closest(".mode-card")?.classList.toggle("is-selected", downloadModeAuto.checked);
 }
 
 function setStatus(message, kind = "success") {
