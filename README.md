@@ -12,7 +12,7 @@ A Manifest V3 browser extension for Chromium-based browsers. Right-click an imag
 - Outputs PNG, JPG, and WEBP.
 - Converts animated GIF, animated WEBP, and APNG from the first frame
 - Flattens transparent images onto a configurable JPG background color.
-- Preserves source dimensions by default.
+- Preserves source dimensions by default, with optional aspect-ratio-safe downscaling to fit a max width and/or max height.
 - Preserves the original filename stem where possible, strips query strings/fragments, sanitizes filesystem-unsafe names, and falls back to hostname plus timestamp.
 - Declared host access for HTTP/HTTPS images so Chromium does not interrupt each conversion with a runtime permission popup.
 - Options page backed by `chrome.storage.sync`.
@@ -61,7 +61,7 @@ Open the extension options page from the toolbar icon or the browser extensions 
 - JPG background color for transparent images.
 - Whether to show the browser save dialog or download automatically.
 - Whether to skip re-encoding when the source already matches the target format.
-- Whether to preserve original dimensions. v1 preserves dimensions; this setting is stored for future resize controls.
+- Whether to preserve original dimensions or resize down to fit a max width and/or max height.
 - Reset to defaults.
 
 ## Local Development
@@ -116,6 +116,7 @@ The extension uses Chromium extension APIs, so behavior should match Chrome clos
 - Convert PNG with transparency to JPG and verify transparent areas use the configured background color.
 - Convert a GIF and verify only the first frame is saved.
 - Convert an SVG with explicit dimensions and an SVG with only a `viewBox`.
+- Disable **Preserve original dimensions**, set a max width and/or height, and verify the saved image is scaled down without distortion.
 - Convert an image URL with query strings and fragments and verify the saved filename is clean.
 - Verify prompt mode opens the browser save dialog before downloading.
 - Verify automatic mode saves directly into the browser's Downloads folder.
@@ -138,6 +139,7 @@ Browser integration tests are intentionally not included in v1 because reliable 
 
 - Animated GIF, animated WEBP, and APNG output only the first frame in v1.
 - Very large images are limited by browser memory and canvas size constraints.
+- Resize mode currently scales down to fit within a bounding box. It does not upscale, crop, or support exact-size/stretch presets.
 - Some sites block image reuse or require request headers that extension fetches cannot reproduce.
 - Chromium does not expose reliable image response bytes before a menu item is clicked, so the extension does not display a pre-click "current format" label. Exact byte-level detection happens after a conversion action is clicked.
 - SVGs that reference external resources may fail canvas export because the browser can mark the canvas unsafe.
@@ -146,7 +148,7 @@ Browser integration tests are intentionally not included in v1 because reliable 
 
 ## Roadmap
 
-- Resize before download.
+- Resize presets and optional upscale/crop modes.
 - Batch conversion from selected images.
 - Custom filename templates.
 - AVIF output when browser support and extension ergonomics are practical.

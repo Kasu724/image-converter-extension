@@ -1,6 +1,7 @@
 import {
   DEFAULT_SETTINGS,
   DOWNLOAD_MODES,
+  MAX_RESIZE_DIMENSION,
   normalizeHexColor,
   normalizeSettings,
   readSettings,
@@ -20,6 +21,9 @@ const downloadModePrompt = document.querySelector("#download-mode-prompt");
 const downloadModeAuto = document.querySelector("#download-mode-auto");
 const skipRedundantConversion = document.querySelector("#skip-redundant-conversion");
 const preserveDimensions = document.querySelector("#preserve-dimensions");
+const resizeSettings = document.querySelector("#resize-settings");
+const resizeWidth = document.querySelector("#resize-width");
+const resizeHeight = document.querySelector("#resize-height");
 const resetButton = document.querySelector("#reset-button");
 const status = document.querySelector("#status");
 
@@ -51,9 +55,13 @@ function bindEvents() {
 
   downloadModePrompt.addEventListener("change", updateDownloadModeState);
   downloadModeAuto.addEventListener("change", updateDownloadModeState);
+  preserveDimensions.addEventListener("change", updateResizeState);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!form.reportValidity()) {
+      return;
+    }
 
     try {
       const saved = await writeSettings(collectSettings());
@@ -76,15 +84,23 @@ function bindEvents() {
 }
 
 function collectSettings() {
-  return normalizeSettings({
+  const normalized = normalizeSettings({
     defaultFormat: defaultFormat.value,
     jpgQuality: jpgQuality.value,
     webpQuality: webpQuality.value,
     jpgBackgroundColor: jpgBackgroundText.value || jpgBackgroundColor.value,
     downloadMode: downloadModeAuto.checked ? DOWNLOAD_MODES.AUTO : DOWNLOAD_MODES.PROMPT,
     skipRedundantConversion: skipRedundantConversion.checked,
-    preserveDimensions: preserveDimensions.checked
+    preserveDimensions: preserveDimensions.checked,
+    resizeWidth: resizeWidth.value,
+    resizeHeight: resizeHeight.value
   });
+
+  if (!normalized.preserveDimensions && !normalized.resizeWidth && !normalized.resizeHeight) {
+    throw new Error("Enter a max width, a max height, or both when resize is enabled.");
+  }
+
+  return normalized;
 }
 
 function renderSettings(settings = DEFAULT_SETTINGS) {
@@ -98,7 +114,12 @@ function renderSettings(settings = DEFAULT_SETTINGS) {
   downloadModeAuto.checked = normalized.downloadMode === DOWNLOAD_MODES.AUTO;
   skipRedundantConversion.checked = normalized.skipRedundantConversion;
   preserveDimensions.checked = normalized.preserveDimensions;
+  resizeWidth.value = normalized.resizeWidth ? String(normalized.resizeWidth) : "";
+  resizeWidth.placeholder = `No limit (up to ${MAX_RESIZE_DIMENSION})`;
+  resizeHeight.value = normalized.resizeHeight ? String(normalized.resizeHeight) : "";
+  resizeHeight.placeholder = `No limit (up to ${MAX_RESIZE_DIMENSION})`;
   updateDownloadModeState();
+  updateResizeState();
 }
 
 function bindQualityControl(rangeInput, numberInput) {
@@ -141,6 +162,19 @@ function updateSliderFill(rangeInput) {
 function updateDownloadModeState() {
   downloadModePrompt.closest(".mode-card")?.classList.toggle("is-selected", downloadModePrompt.checked);
   downloadModeAuto.closest(".mode-card")?.classList.toggle("is-selected", downloadModeAuto.checked);
+}
+
+function updateResizeState() {
+  const disabled = preserveDimensions.checked;
+  resizeSettings?.classList.toggle("is-disabled", disabled);
+
+  if (resizeWidth) {
+    resizeWidth.disabled = disabled;
+  }
+
+  if (resizeHeight) {
+    resizeHeight.disabled = disabled;
+  }
 }
 
 function setStatus(message, kind = "success") {

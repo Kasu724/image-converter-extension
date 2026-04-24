@@ -143,7 +143,8 @@ h1 {
 .field + .mode-grid,
 .mode-grid + .field,
 .field + .check,
-.check + .check {
+.check + .check,
+.check + .resize-panel {
   margin-top: 18px;
 }
 
@@ -345,6 +346,55 @@ input[type="color"] {
   accent-color: var(--accent);
 }
 
+.resize-panel {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  transition:
+    opacity 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.resize-panel.is-disabled {
+  opacity: 0.7;
+}
+
+.resize-head {
+  display: grid;
+  gap: 6px;
+}
+
+.resize-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 730;
+  letter-spacing: -0.01em;
+}
+
+.resize-head .field-hint {
+  margin: 0;
+}
+
+.resize-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.mini-field {
+  display: grid;
+  gap: 8px;
+}
+
+.mini-field > span {
+  color: var(--text);
+  font-weight: 680;
+  line-height: 1.4;
+}
+
 .note {
   padding-block: 18px;
   border-top: 1px solid var(--border);
@@ -425,6 +475,10 @@ select:focus-visible {
   }
 
   .mode-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resize-grid {
     grid-template-columns: 1fr;
   }
 }

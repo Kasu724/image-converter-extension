@@ -114,11 +114,50 @@
             <input id="preserve-dimensions" name="preserveDimensions" type="checkbox">
             <span>Preserve original dimensions</span>
           </label>
+
+          <div id="resize-settings" class="resize-panel" aria-labelledby="resize-title">
+            <div class="resize-head">
+              <h3 id="resize-title">Resize limits</h3>
+              <p class="field-hint">
+                When original dimensions are not preserved, the converted image is scaled down to fit within these bounds.
+                Aspect ratio stays intact, and smaller images are not enlarged.
+              </p>
+            </div>
+
+            <div class="resize-grid">
+              <label class="mini-field" for="resize-width">
+                <span>Max width</span>
+                <input
+                  id="resize-width"
+                  name="resizeWidth"
+                  type="number"
+                  min="1"
+                  max="32768"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="No limit"
+                >
+              </label>
+
+              <label class="mini-field" for="resize-height">
+                <span>Max height</span>
+                <input
+                  id="resize-height"
+                  name="resizeHeight"
+                  type="number"
+                  min="1"
+                  max="32768"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="No limit"
+                >
+              </label>
+            </div>
+          </div>
         </section>
 
         <aside class="note" aria-label="Version one animation behavior">
           Animated GIF, animated WEBP, and APNG images are converted from the first frame only in this version.
-          Resize controls are not exposed yet, so preserving dimensions remains the safest default.
         </aside>
 
         <div class="actions">

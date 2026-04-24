@@ -45,7 +45,12 @@ export async function convertImageRequest(payload = {}) {
   });
 
   try {
-    if (settings.skipRedundantConversion && formatMatches(sourceFormat, targetFormat)) {
+    // Same-format downloads can bypass re-encoding only when no resize transform is requested.
+    if (
+      settings.skipRedundantConversion &&
+      !hasResizeRequest(settings) &&
+      formatMatches(sourceFormat, targetFormat)
+    ) {
       return {
         dataUrl: await blobToDataUrl(source.blob),
         filename,
@@ -310,8 +315,8 @@ function bytesEqual(bytes, expected, offset) {
 async function convertBlobToFormat(blob, { sourceFormat, targetFormat, settings }) {
   const decoded =
     sourceFormat === "svg" || normalizeMimeType(blob.type) === "image/svg+xml"
-      ? await decodeSvgToCanvas(blob)
-      : await decodeRasterToCanvas(blob);
+      ? await decodeSvgToCanvas(blob, settings)
+      : await decodeRasterToCanvas(blob, settings);
 
   const exportCanvas =
     targetFormat === "jpg"
@@ -329,11 +334,12 @@ async function convertBlobToFormat(blob, { sourceFormat, targetFormat, settings 
   };
 }
 
-async function decodeRasterToCanvas(blob) {
+async function decodeRasterToCanvas(blob, settings) {
   try {
     const bitmap = await createImageBitmap(blob);
     try {
-      return drawImageSourceToCanvas(bitmap, bitmap.width, bitmap.height);
+      const outputDimensions = calculateOutputDimensions(bitmap.width, bitmap.height, settings);
+      return drawImageSourceToCanvas(bitmap, outputDimensions.width, outputDimensions.height);
     } finally {
       if (typeof bitmap.close === "function") {
         bitmap.close();
@@ -342,7 +348,8 @@ async function decodeRasterToCanvas(blob) {
   } catch (bitmapError) {
     try {
       const image = await loadImageElementFromBlob(blob);
-      return drawImageSourceToCanvas(image, image.naturalWidth, image.naturalHeight);
+      const outputDimensions = calculateOutputDimensions(image.naturalWidth, image.naturalHeight, settings);
+      return drawImageSourceToCanvas(image, outputDimensions.width, outputDimensions.height);
     } catch (imageError) {
       throw new ConversionError(
         "decode_failed",
@@ -356,7 +363,7 @@ async function decodeRasterToCanvas(blob) {
   }
 }
 
-async function decodeSvgToCanvas(blob) {
+async function decodeSvgToCanvas(blob, settings) {
   let svgText;
   try {
     svgText = await blob.text();
@@ -371,7 +378,8 @@ async function decodeSvgToCanvas(blob) {
 
   try {
     const image = await loadImageElementFromBlob(svgBlob);
-    return drawImageSourceToCanvas(image, sizedSvg.width, sizedSvg.height);
+    const outputDimensions = calculateOutputDimensions(sizedSvg.width, sizedSvg.height, settings);
+    return drawImageSourceToCanvas(image, outputDimensions.width, outputDimensions.height);
   } catch (error) {
     throw new ConversionError(
       "svg_decode_failed",
@@ -499,6 +507,44 @@ async function loadImageElementFromBlob(blob) {
   }
 }
 
+export function calculateOutputDimensions(sourceWidth, sourceHeight, settings = {}) {
+  const normalizedSourceWidth = Math.round(sourceWidth);
+  const normalizedSourceHeight = Math.round(sourceHeight);
+  assertCanvasSize(normalizedSourceWidth, normalizedSourceHeight);
+
+  if (settings.preserveDimensions !== false) {
+    return {
+      width: normalizedSourceWidth,
+      height: normalizedSourceHeight
+    };
+  }
+
+  const maxWidth = Number(settings.resizeWidth) > 0 ? Number(settings.resizeWidth) : 0;
+  const maxHeight = Number(settings.resizeHeight) > 0 ? Number(settings.resizeHeight) : 0;
+  if (!maxWidth && !maxHeight) {
+    return {
+      width: normalizedSourceWidth,
+      height: normalizedSourceHeight
+    };
+  }
+
+  const widthRatio = maxWidth ? maxWidth / normalizedSourceWidth : Infinity;
+  const heightRatio = maxHeight ? maxHeight / normalizedSourceHeight : Infinity;
+  const scale = Math.min(widthRatio, heightRatio, 1);
+  if (!Number.isFinite(scale) || scale <= 0) {
+    return {
+      width: normalizedSourceWidth,
+      height: normalizedSourceHeight
+    };
+  }
+
+  const width = Math.max(1, Math.round(normalizedSourceWidth * scale));
+  const height = Math.max(1, Math.round(normalizedSourceHeight * scale));
+  assertCanvasSize(width, height);
+
+  return { width, height };
+}
+
 function drawImageSourceToCanvas(source, width, height) {
   const normalizedWidth = Math.round(width);
   const normalizedHeight = Math.round(height);
@@ -514,6 +560,10 @@ function drawImageSourceToCanvas(source, width, height) {
     width: normalizedWidth,
     height: normalizedHeight
   };
+}
+
+function hasResizeRequest(settings) {
+  return settings.preserveDimensions === false && Boolean(settings.resizeWidth || settings.resizeHeight);
 }
 
 function flattenCanvasToBackground(sourceCanvas, backgroundColor) {

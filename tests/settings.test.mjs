@@ -5,7 +5,9 @@ import {
   DEFAULT_SETTINGS,
   DOWNLOAD_MODES,
   clampQuality,
+  MAX_RESIZE_DIMENSION,
   normalizeHexColor,
+  normalizeResizeDimension,
   normalizeSettings
 } from "../shared/settings.js";
 
@@ -26,12 +28,22 @@ test("normalizes colors", () => {
   assert.equal(normalizeHexColor("not-a-color"), "#FFFFFF");
 });
 
+test("normalizes resize dimensions", () => {
+  assert.equal(normalizeResizeDimension(""), null);
+  assert.equal(normalizeResizeDimension("bad"), null);
+  assert.equal(normalizeResizeDimension("1200.4"), 1200);
+  assert.equal(normalizeResizeDimension(-1), null);
+  assert.equal(normalizeResizeDimension(MAX_RESIZE_DIMENSION + 1000), MAX_RESIZE_DIMENSION);
+});
+
 test("drops invalid formats while preserving booleans", () => {
   const normalized = normalizeSettings({
     defaultFormat: "gif",
     askWhereToSave: false,
     skipRedundantConversion: true,
-    preserveDimensions: false
+    preserveDimensions: false,
+    resizeWidth: "1440",
+    resizeHeight: "810"
   });
 
   assert.equal(normalized.defaultFormat, DEFAULT_SETTINGS.defaultFormat);
@@ -39,4 +51,6 @@ test("drops invalid formats while preserving booleans", () => {
   assert.equal(normalized.downloadMode, DOWNLOAD_MODES.AUTO);
   assert.equal(normalized.skipRedundantConversion, true);
   assert.equal(normalized.preserveDimensions, false);
+  assert.equal(normalized.resizeWidth, 1440);
+  assert.equal(normalized.resizeHeight, 810);
 });

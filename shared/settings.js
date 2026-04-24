@@ -6,6 +6,8 @@ export const DOWNLOAD_MODES = Object.freeze({
   AUTO: "auto"
 });
 
+export const MAX_RESIZE_DIMENSION = 32768;
+
 export const DEFAULT_SETTINGS = Object.freeze({
   defaultFormat: FORMATS.PNG,
   jpgQuality: 0.9,
@@ -14,7 +16,9 @@ export const DEFAULT_SETTINGS = Object.freeze({
   askWhereToSave: true,
   downloadMode: DOWNLOAD_MODES.PROMPT,
   skipRedundantConversion: false,
-  preserveDimensions: true
+  preserveDimensions: true,
+  resizeWidth: null,
+  resizeHeight: null
 });
 
 const MIN_QUALITY = 0.1;
@@ -52,6 +56,24 @@ export function normalizeHexColor(value, fallback = DEFAULT_SETTINGS.jpgBackgrou
   return fallback;
 }
 
+export function normalizeResizeDimension(value) {
+  if (value === "" || value === null || typeof value === "undefined") {
+    return null;
+  }
+
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return null;
+  }
+
+  const rounded = Math.round(number);
+  if (rounded <= 0) {
+    return null;
+  }
+
+  return Math.min(MAX_RESIZE_DIMENSION, rounded);
+}
+
 export function normalizeSettings(input = {}) {
   const source = input && typeof input === "object" ? input : {};
   const defaultFormat = normalizeFormat(source.defaultFormat);
@@ -73,7 +95,9 @@ export function normalizeSettings(input = {}) {
     preserveDimensions:
       typeof source.preserveDimensions === "boolean"
         ? source.preserveDimensions
-        : DEFAULT_SETTINGS.preserveDimensions
+        : DEFAULT_SETTINGS.preserveDimensions,
+    resizeWidth: normalizeResizeDimension(source.resizeWidth),
+    resizeHeight: normalizeResizeDimension(source.resizeHeight)
   };
 }
 
